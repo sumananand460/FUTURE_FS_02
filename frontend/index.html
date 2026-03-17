@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeadFlow CRM — Suman Anand</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg:#f0f4ff; --surface:#fff; --sidebar:#0f1f5c;
+      --blue:#1a3bce; --blue2:#2f54e8; --blue-lt:#e8eeff; --blue-lt2:#dce4ff;
+      --text:#0d1333; --text2:#4a5378; --border:#dde3f5;
+      --new:#2f54e8; --new-bg:#e8eeff;
+      --cont:#d97706; --cont-bg:#fef3c7;
+      --conv:#059669; --conv-bg:#d1fae5;
+      --danger:#dc2626; --danger-bg:#fee2e2;
+      --shadow:0 1px 3px rgba(15,31,92,.08),0 4px 12px rgba(15,31,92,.06);
+      --shadow-lg:0 8px 32px rgba(15,31,92,.14);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:16px}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    #root{display:flex;min-height:100vh}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-thumb{background:var(--blue-lt2);border-radius:3px}
+
+    /* SIDEBAR */
+    .sidebar{width:240px;flex-shrink:0;background:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;padding:1.5rem 1rem;position:fixed;top:0;left:0;bottom:0;z-index:50}
+    .sidebar-logo{display:flex;align-items:center;gap:.7rem;margin-bottom:2.5rem;padding:0 .5rem}
+    .logo-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#4f7dff,#1a3bce);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;box-shadow:0 4px 12px rgba(47,84,232,.4)}
+    .logo-text{font-size:1rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+    .logo-text span{color:#7fa4ff}
+    .nav-label{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin:0 .5rem 1rem;margin-top:.5rem}
+    .nav-item{display:flex;align-items:center;gap:.8rem;padding:.65rem .8rem;border-radius:8px;color:rgba(255,255,255,.6);font-size:.88rem;font-weight:500;cursor:pointer;transition:all .18s;margin-bottom:.25rem;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+    .nav-item.active{background:rgba(79,125,255,.25);color:#fff}
+    .nav-icon{font-size:1rem;width:20px;text-align:center}
+    .nav-badge{margin-left:auto;font-size:.65rem;font-weight:700;background:var(--blue2);color:#fff;padding:.15rem .45rem;border-radius:10px;min-width:20px;text-align:center}
+    .sidebar-footer{margin-top:auto;padding:.8rem;border-top:1px solid rgba(255,255,255,.08)}
+    .user-chip{display:flex;align-items:center;gap:.7rem}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7dff,#7fa4ff);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+    .user-name{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.85)}
+    .user-role{font-size:.68rem;color:rgba(255,255,255,.4)}
+    .logout-btn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:1rem;transition:color .18s;padding:.3rem}
+    .logout-btn:hover{color:#ff6b6b}
+
+    /* MAIN */
+    .main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+    /* TOPBAR */
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+    .topbar-left h1{font-size:1.25rem;font-weight:800;letter-spacing:-.4px}
+    .topbar-left p{font-size:.8rem;color:var(--text2);margin-top:.1rem}
+    .topbar-right{display:flex;gap:.75rem;align-items:center}
+
+    /* BUTTONS */
+    .btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:.45rem;padding:.6rem 1.2rem}
+    .btn-primary{background:var(--blue2);color:#fff;box-shadow:0 2px 8px rgba(47,84,232,.3)}
+    .btn-primary:hover{background:var(--blue);transform:translateY(-1px)}
+    .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+    .btn-ghost:hover{background:var(--blue-lt);color:var(--blue2);border-color:var(--blue-lt2)}
+    .btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5}
+    .btn-danger:hover{background:var(--danger);color:#fff}
+    .btn-sm{padding:.4rem .85rem;font-size:.78rem}
+    .btn-icon{padding:.5rem;width:34px;height:34px;justify-content:center}
+
+    /* SEARCH */
+    .search-wrap{position:relative}
+    .search-wrap input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.55rem 1rem .55rem 2.3rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;color:var(--text);outline:none;width:220px;transition:border-color .2s}
+    .search-wrap input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(47,84,232,.1)}
+    .search-wrap input::placeholder{color:var(--text2)}
+    .search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text2);font-size:.9rem;pointer-events:none}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.5rem 2rem 0}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.4rem;box-shadow:var(--shadow);animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}
+    .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+    .stat-num{font-size:2rem;font-weight:800;letter-spacing:-1px;line-height:1}
+    .stat-label{font-size:.78rem;color:var(--text2);margin-top:.3rem;font-weight:500}
+
+    /* CONTENT */
+    .content{padding:1.5rem 2rem 2rem;flex:1}
+
+    /* FILTER BAR */
+    .filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+    .filter-label{font-size:.78rem;font-weight:600;color:var(--text2)}
+    .filter-select{font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:500;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:.45rem .85rem;color:var(--text);cursor:pointer;outline:none}
+
+    /* TABLE */
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);animation:fadeUp .5s .1s cubic-bezier(.16,1,.3,1) both}
+    table{width:100%;border-collapse:collapse}
+    thead{background:var(--bg);border-bottom:1px solid var(--border)}
+    th{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);padding:.85rem 1.25rem;text-align:left}
+    td{padding:1rem 1.25rem;font-size:.88rem;border-bottom:1px solid var(--border);vertical-align:middle}
+    tbody tr{transition:background .15s}
+    tbody tr:hover{background:var(--blue-lt)}
+    tbody tr:last-child td{border-bottom:none}
+    .lead-name{font-weight:700;color:var(--text)}
+    .lead-email{font-size:.78rem;color:var(--text2);margin-top:.15rem;font-family:'JetBrains Mono',monospace}
+    .lead-company{font-size:.82rem;color:var(--text2)}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;padding:.3rem .75rem;border-radius:20px;white-space:nowrap}
+    .badge::before{content:'';width:6px;height:6px;border-radius:50%}
+    .badge-new{background:var(--new-bg);color:var(--new)}.badge-new::before{background:var(--new)}
+    .badge-contacted{background:var(--cont-bg);color:var(--cont)}.badge-contacted::before{background:var(--cont)}
+    .badge-converted{background:var(--conv-bg);color:var(--conv)}.badge-converted::before{background:var(--conv)}
+    .source-chip{font-size:.72rem;font-weight:600;background:var(--blue-lt);color:var(--blue);padding:.25rem .65rem;border-radius:6px}
+    .actions{display:flex;gap:.4rem}
+
+    /* EMPTY */
+    .empty-state{padding:4rem 2rem;text-align:center}
+    .empty-state .empty-icon{font-size:3rem;margin-bottom:1rem;opacity:.4}
+    .empty-state h3{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+    .empty-state p{font-size:.85rem;color:var(--text2)}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(10,20,60,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn .2s ease}
+    .modal{background:var(--surface);border-radius:16px;padding:2rem;width:100%;max-width:520px;box-shadow:var(--shadow-lg);animation:slideUp .3s cubic-bezier(.16,1,.3,1);max-height:90vh;overflow-y:auto}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+    .modal-title{font-size:1.1rem;font-weight:800;letter-spacing:-.3px}
+    .modal-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text2);padding:.3rem;border-radius:6px;transition:all .15s}
+    .modal-close:hover{background:var(--danger-bg);color:var(--danger)}
+
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-group{display:flex;flex-direction:column;gap:.4rem}
+    .form-group.full{grid-column:1/-1}
+    label{font-size:.75rem;font-weight:700;color:var(--text2);letter-spacing:.03em}
+    .form-group input,.form-group select,.form-group textarea{font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);outline:none;transition:border-color .2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(47,84,232,.1)}
+    .form-group textarea{resize:vertical;min-height:80px}
+    .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+
+    /* NOTES */
+    .notes-section{margin-top:1.5rem}
+    .notes-title{font-size:.85rem;font-weight:700;margin-bottom:.75rem}
+    .note-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;display:flex;align-items:flex-start;gap:.75rem}
+    .note-text{flex:1;font-size:.85rem;line-height:1.5}
+    .note-time{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);white-space:nowrap}
+    .note-input-row{display:flex;gap:.6rem;margin-top:.75rem}
+    .note-input-row input{flex:1;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.55rem .9rem;color:var(--text);outline:none}
+
+    /* LOGIN */
+    .login-page{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a1040 0%,#0f1f5c 50%,#162370 100%);padding:1.5rem}
+    .login-card{background:var(--surface);border-radius:20px;padding:2.5rem;width:100%;max-width:400px;box-shadow:var(--shadow-lg);animation:slideUp .5s cubic-bezier(.16,1,.3,1)}
+    .login-logo{text-align:center;margin-bottom:2rem}
+    .login-logo .logo-big{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#4f7dff,#1a3bce);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(47,84,232,.35)}
+    .login-logo h1{font-size:1.5rem;font-weight:800;letter-spacing:-.5px}
+    .login-logo h1 span{color:var(--blue2)}
+    .login-logo p{font-size:.82rem;color:var(--text2);margin-top:.3rem}
+    .login-form{display:flex;flex-direction:column;gap:1rem}
+    .login-form input{font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;color:var(--text);outline:none;transition:border-color .2s}
+    .login-form input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(47,84,232,.12)}
+    .login-error{font-size:.8rem;color:var(--danger);background:var(--danger-bg);padding:.6rem .9rem;border-radius:8px}
+    .login-toggle{text-align:center;margin-top:1rem;font-size:.82rem;color:var(--text2)}
+    .login-toggle button{background:none;border:none;color:var(--blue2);font-weight:700;cursor:pointer;font-size:.82rem}
+    .login-footer{text-align:center;margin-top:1.5rem;font-size:.72rem;color:var(--text2)}
+
+    /* TOAST */
+    .toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem}
+    .toast{background:var(--text);color:#fff;padding:.75rem 1.2rem;border-radius:10px;font-size:.82rem;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:.6rem;animation:toastIn .35s cubic-bezier(.16,1,.3,1);max-width:280px}
+    .toast.success{background:var(--conv)}
+    .toast.error{background:var(--danger)}
+
+    /* ANIMATIONS */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){
+      .sidebar{display:none}
+      .main{margin-left:0}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .form-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+const API = 'http://localhost:5000/api';
+
+async function apiFetch(path, opts={}) {
+  const t = localStorage.getItem('crm_token');
+  try {
+    const res = await fetch(API + path, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(t ? { Authorization: `Bearer ${t}` } : {})
+      },
+      ...opts
+    });
+    return res.json();
+  } catch(e) {
+    return { success: false, error: 'Cannot connect to server. Is the backend running?' };
+  }
+}
+
+function ToastContainer({ toasts }) {
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${t.type}`}>
+          <span>{t.type==='success'?'✓':'✕'}</span> {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LoginPage({ onLogin, addToast }) {
+  const [mode, setMode] = useState('login');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setErr('');
+    if (!username.trim() || !password.trim()) {
+      setErr('Please fill in both fields');
+      return;
+    }
+    setLoading(true);
+    const res = await apiFetch(`/auth/${mode}`, {
+      method: 'POST',
+      body: JSON.stringify({ username: username.trim(), password: password.trim() })
+    });
+    setLoading(false);
+    if (res.success) {
+      localStorage.setItem('crm_token', res.token);
+      localStorage.setItem('crm_user', res.username);
+      onLogin(res.username);
+      addToast('Welcome, ' + res.username + '!', 'success');
+    } else {
+      setErr(res.error || 'Something went wrong. Is the backend running?');
+    }
+  }
+
+  return (
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-logo">
+          <div className="logo-big">📊</div>
+          <h1>Lead<span>Flow</span></h1>
+          <p>Client Lead Management System</p>
+        </div>
+        <form className="login-form" onSubmit={handleSubmit}>
+          {err && <div className="login-error">⚠ {err}</div>}
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            autoComplete="username"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+          <button className="btn btn-primary" type="submit"
+            style={{justifyContent:'center',padding:'.85rem'}}
+            disabled={loading}>
+            {loading ? 'Please wait...' : (mode==='login' ? '→ Sign In' : '→ Create Account')}
+          </button>
+        </form>
+        <div className="login-toggle">
+          {mode==='login' ? "Don't have an account? " : 'Already have an account? '}
+          <button onClick={()=>{setMode(mode==='login'?'register':'login');setErr('');}}>
+            {mode==='login' ? 'Register' : 'Sign In'}
+          </button>
+        </div>
+        <div className="login-footer">© 2026 Suman Anand — LeadFlow CRM</div>
+      </div>
+    </div>
+  );
+}
+
+function LeadModal({ lead, onClose, onSave, addToast }) {
+  const isEdit = !!lead?._id;
+  const [form, setForm] = useState({
+    name:'', email:'', phone:'', company:'',
+    source:'Website', status:'New', followUpDate:'',
+    ...lead
+  });
+  const [noteText, setNoteText] = useState('');
+  const [notes, setNotes] = useState(lead?.notes || []);
+  const [saving, setSaving] = useState(false);
+
+  function set(k,v){ setForm(f=>({...f,[k]:v})); }
+
+  async function handleSubmit(e) {
+    e.preventDefault(); setSaving(true);
+    const method = isEdit ? 'PUT' : 'POST';
+    const path   = isEdit ? `/leads/${lead._id}` : '/leads';
+    const res = await apiFetch(path, { method, body: JSON.stringify({...form, notes}) });
+    setSaving(false);
+    if (res.success) { onSave(res.data); onClose(); addToast(isEdit?'Lead updated!':'Lead added!','success'); }
+    else addToast(res.error,'error');
+  }
+
+  async function addNote() {
+    if (!noteText.trim() || !isEdit) return;
+    const res = await apiFetch(`/leads/${lead._id}/notes`,{method:'POST',body:JSON.stringify({text:noteText})});
+    if (res.success) { setNotes(res.data.notes); setNoteText(''); addToast('Note added!','success'); }
+  }
+
+  async function delNote(noteId) {
+    const res = await apiFetch(`/leads/${lead._id}/notes/${noteId}`,{method:'DELETE'});
+    if (res.success) setNotes(res.data.notes);
+  }
+
+  return (
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">{isEdit?'✏️ Edit Lead':'➕ New Lead'}</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Full Name *</label>
+              <input value={form.name} onChange={e=>set('name',e.target.value)} placeholder="John Doe" required/>
+            </div>
+            <div className="form-group">
+              <label>Email *</label>
+              <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="john@company.com" required/>
+            </div>
+            <div className="form-group">
+              <label>Phone</label>
+              <input value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+91 98765 43210"/>
+            </div>
+            <div className="form-group">
+              <label>Company</label>
+              <input value={form.company} onChange={e=>set('company',e.target.value)} placeholder="Acme Corp"/>
+            </div>
+            <div className="form-group">
+              <label>Source</label>
+              <select value={form.source} onChange={e=>set('source',e.target.value)}>
+                {['Website','LinkedIn','Referral','Cold Outreach','Social Media','Other'].map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Status</label>
+              <select value={form.status} onChange={e=>set('status',e.target.value)}>
+                {['New','Contacted','Converted'].map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="form-group full">
+              <label>Follow-up Date</label>
+              <input type="date" value={form.followUpDate?form.followUpDate.substring(0,10):''} onChange={e=>set('followUpDate',e.target.value)}/>
+            </div>
+          </div>
+          {isEdit && (
+            <div className="notes-section">
+              <div className="notes-title">📝 Notes ({notes.length})</div>
+              {notes.map(n=>(
+                <div className="note-item" key={n._id}>
+                  <div className="note-text">{n.text}</div>
+                  <div className="note-time">{new Date(n.createdAt).toLocaleDateString()}</div>
+                  <button type="button" className="btn btn-sm btn-danger btn-icon" onClick={()=>delNote(n._id)}>✕</button>
+                </div>
+              ))}
+              <div className="note-input-row">
+                <input placeholder="Add a note..." value={noteText} onChange={e=>setNoteText(e.target.value)}
+                  onKeyDown={e=>e.key==='Enter'&&(e.preventDefault(),addNote())}/>
+                <button type="button" className="btn btn-primary btn-sm" onClick={addNote}>Add</button>
+              </div>
+            </div>
+          )}
+          <div className="form-actions">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving?'Saving...':(isEdit?'✓ Update Lead':'+ Add Lead')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [user,       setUser]       = useState(localStorage.getItem('crm_user'));
+  const [leads,      setLeads]      = useState([]);
+  const [stats,      setStats]      = useState({total:0,new:0,contacted:0,converted:0});
+  const [search,     setSearch]     = useState('');
+  const [statusF,    setStatusF]    = useState('All');
+  const [sourceF,    setSourceF]    = useState('All');
+  const [modal,      setModal]      = useState(null);
+  const [toasts,     setToasts]     = useState([]);
+  const [loading,    setLoading]    = useState(false);
+  const [view,       setView]       = useState('leads');
+  const [delConfirm, setDelConfirm] = useState(null);
+
+  function addToast(msg, type='success') {
+    const id = Date.now();
+    setToasts(t=>[...t,{id,msg,type}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3000);
+  }
+
+  const fetchLeads = useCallback(async()=>{
+    if (!user) return;
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (search) params.set('search',search);
+    if (statusF!=='All') params.set('status',statusF);
+    if (sourceF!=='All') params.set('source',sourceF);
+    const res = await apiFetch(`/leads?${params}`);
+    if (res.success) setLeads(res.data);
+    else if (res.error) addToast(res.error,'error');
+    setLoading(false);
+  },[user,search,statusF,sourceF]);
+
+  const fetchStats = useCallback(async()=>{
+    if (!user) return;
+    const res = await apiFetch('/leads/stats/summary');
+    if (res.success) setStats(res.data);
+  },[user]);
+
+  useEffect(()=>{ fetchLeads(); },[fetchLeads]);
+  useEffect(()=>{ fetchStats(); },[fetchStats]);
+
+  function logout() {
+    localStorage.removeItem('crm_token');
+    localStorage.removeItem('crm_user');
+    setUser(null); setLeads([]); setStats({total:0,new:0,contacted:0,converted:0});
+  }
+
+  function onSave(updated) {
+    setLeads(prev=>{
+      const exists = prev.find(l=>l._id===updated._id);
+      return exists ? prev.map(l=>l._id===updated._id?updated:l) : [updated,...prev];
+    });
+    fetchStats();
+  }
+
+  async function deleteLead(id) {
+    const res = await apiFetch(`/leads/${id}`,{method:'DELETE'});
+    if (res.success) { setLeads(l=>l.filter(x=>x._id!==id)); fetchStats(); addToast('Lead deleted','success'); }
+    else addToast(res.error,'error');
+    setDelConfirm(null);
+  }
+
+  async function quickStatus(lead, status) {
+    const res = await apiFetch(`/leads/${lead._id}`,{method:'PUT',body:JSON.stringify({status})});
+    if (res.success) { onSave(res.data); addToast(`Marked as ${status}`,'success'); }
+  }
+
+  if (!user) return (
+    <>
+      <LoginPage onLogin={u=>setUser(u)} addToast={addToast}/>
+      <ToastContainer toasts={toasts}/>
+    </>
+  );
+
+  const statCards = [
+    {label:'Total Leads', num:stats.total,     icon:'👥', bg:'#e8eeff', color:'#1a3bce'},
+    {label:'New',         num:stats.new,        icon:'🆕', bg:'#e8eeff', color:'#2f54e8'},
+    {label:'Contacted',   num:stats.contacted,  icon:'📞', bg:'#fef3c7', color:'#d97706'},
+    {label:'Converted',   num:stats.converted,  icon:'✅', bg:'#d1fae5', color:'#059669'},
+  ];
+
+  return (
+    <>
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <div className="logo-icon">📊</div>
+          <div className="logo-text">Lead<span>Flow</span></div>
+        </div>
+        <div className="nav-label">Menu</div>
+        <button className={`nav-item ${view==='leads'?'active':''}`} onClick={()=>setView('leads')}>
+          <span className="nav-icon">🎯</span> Leads
+          <span className="nav-badge">{stats.total}</span>
+        </button>
+        <button className={`nav-item ${view==='dashboard'?'active':''}`} onClick={()=>setView('dashboard')}>
+          <span className="nav-icon">📈</span> Dashboard
+        </button>
+        <div className="sidebar-footer">
+          <div className="user-chip">
+            <div className="user-avatar">{user[0].toUpperCase()}</div>
+            <div>
+              <div className="user-name">{user}</div>
+              <div className="user-role">Admin</div>
+            </div>
+            <button className="logout-btn" onClick={logout} title="Logout">↩</button>
+          </div>
+        </div>
+      </aside>
+
+      <div className="main">
+        <div className="topbar">
+          <div className="topbar-left">
+            <h1>{view==='leads'?'🎯 Lead Management':'📈 Dashboard'}</h1>
+            <p>{new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+          </div>
+          <div className="topbar-right">
+            {view==='leads' && (
+              <>
+                <div className="search-wrap">
+                  <span className="search-icon">🔍</span>
+                  <input placeholder="Search leads..." value={search} onChange={e=>setSearch(e.target.value)}/>
+                </div>
+                <button className="btn btn-primary" onClick={()=>setModal('add')}>+ Add Lead</button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="stats-grid">
+          {statCards.map((s,i)=>(
+            <div className="stat-card" key={s.label} style={{animationDelay:`${i*.07}s`}}>
+              <div className="stat-top">
+                <div className="stat-icon" style={{background:s.bg,color:s.color}}>{s.icon}</div>
+              </div>
+              <div className="stat-num">{s.num}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="content">
+          {view==='leads' && (
+            <>
+              <div className="filter-bar">
+                <span className="filter-label">Filter:</span>
+                <select className="filter-select" value={statusF} onChange={e=>setStatusF(e.target.value)}>
+                  {['All','New','Contacted','Converted'].map(s=><option key={s}>{s}</option>)}
+                </select>
+                <select className="filter-select" value={sourceF} onChange={e=>setSourceF(e.target.value)}>
+                  {['All','Website','LinkedIn','Referral','Cold Outreach','Social Media','Other'].map(s=><option key={s}>{s}</option>)}
+                </select>
+                <span style={{marginLeft:'auto',fontSize:'.78rem',color:'var(--text2)',fontWeight:600}}>
+                  {leads.length} lead{leads.length!==1?'s':''}
+                </span>
+              </div>
+
+              <div className="table-wrap">
+                {loading ? (
+                  <div className="empty-state"><div className="empty-icon">⏳</div><h3>Loading...</h3></div>
+                ) : leads.length===0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">📭</div>
+                    <h3>No leads found</h3>
+                    <p>Add your first lead using the button above</p>
+                  </div>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Lead</th><th>Company</th><th>Source</th><th>Follow-up</th><th>Status</th><th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map(lead=>(
+                        <tr key={lead._id}>
+                          <td>
+                            <div className="lead-name">{lead.name}</div>
+                            <div className="lead-email">{lead.email}</div>
+                          </td>
+                          <td><span className="lead-company">{lead.company||'—'}</span></td>
+                          <td><span className="source-chip">{lead.source}</span></td>
+                          <td style={{fontSize:'.78rem',color:'var(--text2)',fontFamily:'JetBrains Mono,monospace'}}>
+                            {lead.followUpDate?new Date(lead.followUpDate).toLocaleDateString('en-IN'):'—'}
+                          </td>
+                          <td>
+                            <select value={lead.status} onChange={e=>quickStatus(lead,e.target.value)}
+                              style={{fontFamily:'inherit',fontSize:'.78rem',fontWeight:700,background:'transparent',border:'none',cursor:'pointer',outline:'none'}}>
+                              {['New','Contacted','Converted'].map(s=><option key={s}>{s}</option>)}
+                            </select>
+                          </td>
+                          <td>
+                            <div className="actions">
+                              <button className="btn btn-ghost btn-sm btn-icon" onClick={()=>setModal(lead)}>✏️</button>
+                              <button className="btn btn-danger btn-sm btn-icon" onClick={()=>setDelConfirm(lead._id)}>🗑</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          )}
+
+          {view==='dashboard' && (
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1rem'}}>
+              {[
+                {label:'Conversion Rate', val:stats.total?Math.round(stats.converted/stats.total*100)+'%':'0%', icon:'📊', desc:'Leads converted to clients'},
+                {label:'Contact Rate',    val:stats.total?Math.round((stats.contacted+stats.converted)/stats.total*100)+'%':'0%', icon:'📞', desc:'Leads that were contacted'},
+                {label:'New Leads',       val:stats.new, icon:'🆕', desc:'Awaiting first contact'},
+              ].map(card=>(
+                <div className="stat-card" key={card.label} style={{padding:'1.5rem 1.75rem'}}>
+                  <div style={{fontSize:'2rem',marginBottom:'.8rem'}}>{card.icon}</div>
+                  <div className="stat-num" style={{fontSize:'2.5rem'}}>{card.val}</div>
+                  <div className="stat-label" style={{marginTop:'.4rem',fontSize:'.85rem',fontWeight:700}}>{card.label}</div>
+                  <div style={{fontSize:'.75rem',color:'var(--text2)',marginTop:'.3rem'}}>{card.desc}</div>
+                </div>
+              ))}
+              <div className="stat-card" style={{gridColumn:'1/-1',padding:'1.5rem 1.75rem'}}>
+                <div style={{fontWeight:800,marginBottom:'1rem',fontSize:'1rem'}}>📋 Recent Leads</div>
+                {leads.slice(0,5).map(l=>(
+                  <div key={l._id} style={{display:'flex',alignItems:'center',gap:'1rem',padding:'.6rem 0',borderBottom:'1px solid var(--border)'}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:700,fontSize:'.88rem'}}>{l.name}</div>
+                      <div style={{fontSize:'.75rem',color:'var(--text2)'}}>{l.email}</div>
+                    </div>
+                    <span className={`badge badge-${l.status.toLowerCase()}`}>{l.status}</span>
+                    <span className="source-chip">{l.source}</span>
+                  </div>
+                ))}
+                {leads.length===0 && <div style={{color:'var(--text2)',fontSize:'.85rem'}}>No leads yet. Add some!</div>}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {(modal==='add'||(modal&&modal._id)) && (
+        <LeadModal
+          lead={modal==='add'?null:modal}
+          onClose={()=>setModal(null)}
+          onSave={onSave}
+          addToast={addToast}
+        />
+      )}
+
+      {delConfirm && (
+        <div className="modal-overlay" onClick={()=>setDelConfirm(null)}>
+          <div className="modal" style={{maxWidth:380}} onClick={e=>e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">🗑 Delete Lead?</div>
+              <button className="modal-close" onClick={()=>setDelConfirm(null)}>✕</button>
+            </div>
+            <p style={{color:'var(--text2)',fontSize:'.9rem',marginBottom:'1.5rem'}}>
+              This action cannot be undone. The lead and all notes will be permanently removed.
+            </p>
+            <div className="form-actions">
+              <button className="btn btn-ghost" onClick={()=>setDelConfirm(null)}>Cancel</button>
+              <button className="btn btn-danger" onClick={()=>deleteLead(delConfirm)}>Yes, Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer toasts={toasts}/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
